@@ -15,7 +15,7 @@ This package is a [preset](https://www.graphql-code-generator.com/docs/presets/p
 I was a bit frustrated to have to import my typed GraphQL hooks from another file, and to leave my `gql` definitions dangling:
 
 ```ts
-import {useFoo} from './generated-hooks';
+import { useFoo } from "./generated-hooks";
 
 gql`
   query Foo {
@@ -27,14 +27,14 @@ gql`
 So this tool lets you write the same thing, but in a single statement:
 
 ```ts
-const {Foo} = gql(`#graphql
+const FooQuery = gql(/* GraphQL */ `
   query Foo {
     bar
   }
 `);
 ```
 
-I also didn't like that each operation had to be uniquely named not only within the same file, but also within the whole app - it felt like a step backward from encapsulation. This is addressed by hashing the operation names under the hood (cf the [generated output](https://github.com/arcanis/graphql-typescript-integration/blob/19a2e6b1f8949f12ab6e5120e002a30f79dbda41/demo/gql/index.ts#L4-L9)).
+~~I also didn't like that each operation had to be uniquely named not only within the same file, but also within the whole app - it felt like a step backward from encapsulation. This is addressed by hashing the operation names under the hood (cf the [generated output](https://github.com/arcanis/graphql-typescript-integration/blob/19a2e6b1f8949f12ab6e5120e002a30f79dbda41/demo/gql/index.ts#L4-L9)).~~ For accessing fragments globally it is pretty handy to have global unique names. I like how relay does it.
 
 Finally, I wanted something relatively easy to setup and maintain because I don't have that much time 😛
 
@@ -69,18 +69,26 @@ generates:
 You can import the `gql` function from the generated folder. For instance, assuming your output folder is a subfolder named "gql":
 
 ```ts
-import {gql} from './gql';
+import { gql } from "./gql";
 
-const {GetTweets, CreateTweet} = gql(`#graphql
+const CreateTweet = gql(/* GraphQL */ `
   query GetTweets {
     Tweets {
       id
     }
   }
+`);
 
+const FooFragment = gql(/* GraphQL */ `
+  fragment Foo on Tweet {
+    id
+  }
+`);
+
+const GetTweets = gql(/* GraphQL */ `
   mutation CreateTweet {
     CreateTweet(body: "Hello") {
-      id
+      ...Foo
     }
   }
 `);
@@ -96,15 +104,15 @@ This would let you do `import {gql} from '@app/gql'` from anywhere in your codeb
 
 ## Limitations
 
-- You can't use fragments. I don't use them at the moment, so I haven't looked into them. However, given that queries are properly typed, you'll know when you're passing incomplete data around, which will let you add the missing fields to your queries. Not exactly like fragments, but still a decent workaround.
+- ~~You can't use fragments. I don't use them at the moment, so I haven't looked into them. However, given that queries are properly typed, you'll know when you're passing incomplete data around, which will let you add the missing fields to your queries. Not exactly like fragments, but still a decent workaround.~~
 
-- You must use the `const query = gql(...);` syntax (not the typical tagged template ``const query = gql`...`;`` one). This is because TypeScript isn't currently smart enough to forward tagged template parameters as their literal types (https://github.com/microsoft/TypeScript/issues/29432).
+- You must use the `const query = gql(...);` syntax (not the typical tagged template `` const query = gql`...`; `` one). This is because TypeScript isn't currently smart enough to forward tagged template parameters as their literal types (https://github.com/microsoft/TypeScript/issues/29432).
 
-- You should indicate `#graphql` right after opening the GraphQL source literal (right after the opening quote, before even any line return). This is because otherwise vscode-graphql won't recognize the string as being GraphQL and won't highlight it (they don't detect `gql` statements when used as regular function calls, unlike graphql-code-generator).
+- ~~You should indicate `#graphql` right after opening the GraphQL source literal (right after the opening quote, before even any line return). This is because otherwise vscode-graphql won't recognize the string as being GraphQL and won't highlight it (they don't detect `gql` statements when used as regular function calls, unlike graphql-code-generator).~~ Fixed in upstream graphql-tools. You can no use `gql(/* GraphQL */ \`...\`)`
 
-- A contrario, you must **not** use the `/* GraphQL */` magic comment inside the `gql(...)` function call. This is because [graphql-tag-pluck](https://www.graphql-tools.com/docs/graphql-tag-pluck/), the tool extracting these calls, has a bug and will register the document twice - which brings us to the final limitation:
+- ~~A contraire, you must **not** use the `/* GraphQL */` magic comment inside the `gql(...)` function call. This is because [graphql-tag-pluck](https://www.graphql-tools.com/docs/graphql-tag-pluck/), the tool extracting these calls, has a bug and will register the document twice - which brings us to the final limitation:~~ Fixed :)
 
-- You can only have a single `gql(...)` function call per file. This is because graphql-tag-pluck concatenates all documents from a single file into a single one, with no way to split them back. As a result we end up generating a `gql` overload for the composite query, instead of one for each individual document. It's however not a huge deal - just define multiple queries / mutations within the same `gql` call, and use destructuring to access them individually (cf example in the "Usage" section).
+- ~~You can only have a single `gql(...)` function call per file. This is because graphql-tag-pluck concatenates all documents from a single file into a single one, with no way to split them back. As a result we end up generating a `gql` overload for the composite query, instead of one for each individual document. It's however not a huge deal - just define multiple queries / mutations within the same `gql` call, and use destructuring to access them individually (cf example in the "Usage" section).~~ You should now have one operation per gql call!
 
 ## License (MIT)
 

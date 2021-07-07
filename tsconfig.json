@@ -2,17 +2,12 @@
   "compilerOptions": {
     "declaration": true,
     "esModuleInterop": true,
-    "lib": [
-      "es2017"
-    ],
+    "lib": ["es2017"],
     "module": "commonjs",
-    "noEmit": true,
     "strict": true,
-    "target": "es2017"
+    "target": "es2017",
+    "outDir": "lib",
+    "skipLibCheck": true
   },
-  "include": [
-    "demo/graphql.d.ts",
-    "demo/graphtype.d.ts",
-    "**/*.ts"
-  ]
+  "include": ["src/*.ts"]
 }
