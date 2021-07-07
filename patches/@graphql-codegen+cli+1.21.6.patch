@@ -1,0 +1,28 @@
+diff --git a/node_modules/@graphql-codegen/cli/bin.js b/node_modules/@graphql-codegen/cli/bin.js
+index 1307a11..7fdc41d 100755
+--- a/node_modules/@graphql-codegen/cli/bin.js
++++ b/node_modules/@graphql-codegen/cli/bin.js
+@@ -514,7 +514,13 @@ async function loadDocuments(documentPointers, config) {
+     const loaders = [new codeFileLoader.CodeFileLoader(), new gitLoader.GitLoader(), new githubLoader.GithubLoader(), new graphqlFileLoader.GraphQLFileLoader()];
+     const loadedFromToolkit = await load.loadDocuments(documentPointers, {
+         ...defaultDocumentsLoadOptions,
+-        ignore: Object.keys(config.generates).map(p => path.join(process.cwd(), p)),
++        ignore: Object.keys(config.generates).map(p => {
++          let ignorePath = path.join(process.cwd(), p)
++          if (ignorePath.endsWith("**/*") === false) {
++            ignorePath += "**/*"
++          }
++          return ignorePath
++        }),
+         loaders,
+         ...config,
+         ...config.config,
+@@ -738,7 +744,7 @@ class CodegenContext {
+             const documents = await this._graphqlConfig.getProject(this._project).loadDocuments(pointer, config);
+             return documents;
+         }
+-        return loadDocuments(pointer, config);
++        return loadDocuments(pointer, config)
+     }
+ }
+ function ensureContext(input) {

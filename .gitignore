@@ -1,4 +1,2 @@
-.yarn/*
-!.yarn/releases
-.pnp.*
 /lib
+node_modules

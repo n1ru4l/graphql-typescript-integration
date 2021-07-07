@@ -1,5 +1,1 @@
-module.exports = {
-  extends: [
-    `@yarnpkg`,
-  ],
-};
+module.exports = {};

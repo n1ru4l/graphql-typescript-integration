@@ -2,13 +2,14 @@
 import * as graphql from './graphql';
 
 const documents = {
-  "#graphql\n  query Foo {\n    Tweets {\n      id\n    }\n  }\n\n  query Bar {\n    Tweets {\n      id\n      body\n    }\n  }\n": {
-    Foo: graphql.Foo_X9_Document,
-    Bar: graphql.Bar_X9_Document,
-  },
+    "\n  query Foo {\n    Tweets {\n      id\n    }\n  }\n": graphql.FooDocument,
+    "\n  fragment Lel on Tweet {\n    id\n    body\n  }\n": graphql.LelFragmentDoc,
+    "\n  query Bar {\n    Tweets {\n      ...Lel\n    }\n  }\n": graphql.BarDocument,
 };
 
-export function gql(source: "#graphql\n  query Foo {\n    Tweets {\n      id\n    }\n  }\n\n  query Bar {\n    Tweets {\n      id\n      body\n    }\n  }\n"): (typeof documents)["#graphql\n  query Foo {\n    Tweets {\n      id\n    }\n  }\n\n  query Bar {\n    Tweets {\n      id\n      body\n    }\n  }\n"];
+export function gql(source: "\n  query Foo {\n    Tweets {\n      id\n    }\n  }\n"): (typeof documents)["\n  query Foo {\n    Tweets {\n      id\n    }\n  }\n"];
+export function gql(source: "\n  fragment Lel on Tweet {\n    id\n    body\n  }\n"): (typeof documents)["\n  fragment Lel on Tweet {\n    id\n    body\n  }\n"];
+export function gql(source: "\n  query Bar {\n    Tweets {\n      ...Lel\n    }\n  }\n"): (typeof documents)["\n  query Bar {\n    Tweets {\n      ...Lel\n    }\n  }\n"];
 
 export function gql(source: string): unknown;
 export function gql(source: string) {

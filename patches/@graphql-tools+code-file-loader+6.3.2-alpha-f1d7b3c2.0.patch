@@ -1,0 +1,17 @@
+diff --git a/node_modules/@graphql-tools/code-file-loader/index.js b/node_modules/@graphql-tools/code-file-loader/index.js
+index 7f34ec1..9660b6d 100644
+--- a/node_modules/@graphql-tools/code-file-loader/index.js
++++ b/node_modules/@graphql-tools/code-file-loader/index.js
+@@ -244,8 +244,11 @@ class CodeFileLoader {
+                 const content = await readFile(normalizedFilePath, { encoding: 'utf-8' });
+                 const sources = await graphqlTagPluck.gqlPluckFromCodeString(normalizedFilePath, content, options.pluckConfig);
+                 if (sources.length) {
++                    
++                    const document = graphql.concatAST(sources.map(source => graphql.parse(source.body, options)))
+                     return {
+-                        document: graphql.concatAST(sources.map(source => graphql.parse(source, options))),
++                        document,
++                        rawSDL: sources.map(source => source.body).join(`\n#-#\n`),
+                         location: pointer,
+                     };
+                 }
